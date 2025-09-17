@@ -990,7 +990,7 @@ def validate_one_epoch_instruments(model, classifier, dataloader, device, run, e
         batch_labels = torch.tensor(inst_labels, dtype=torch.long, device=device)
         batch_feats = torch.cat(inst_feats, dim=0).to(device)  # (N_inst,C,H_feat,W_feat)
         # classificazione con masked pooling
-        logits = classifier(batch_imgs, batch_masks)  # (N_inst,num_classes)
+        logits = classifier(batch_feats, batch_masks)  # (N_inst,num_classes)
         loss = criterion(logits, batch_labels)
 
         total_loss += loss.item()

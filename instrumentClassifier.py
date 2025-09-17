@@ -121,7 +121,7 @@ class InstrumentClassifier(nn.Module):
         masks: (B, 1, H, W) maschere binarie per istanza
       """
         # Mascheratura: element-wise product
-        feats = F.interpolate(feats, size=masks.shape[2:], mode="bilinear", align_corners=False)
+        masks = F.interpolate(masks, size=feats.shape[2:], mode="nearest")
         masked_feats = feats * masks
 
         # Passaggio nella CNN
