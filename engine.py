@@ -498,6 +498,7 @@ def train_one_epoch_instruments(
             pred_logits,out_dict = model.mask_decoder(feat)
 
             pred_logits = model.postprocess_masks(pred_logits, (1024, 1024), (1024, 1024))
+
             #print(pred_logits[0:1].shape)
 
 
@@ -533,15 +534,16 @@ def train_one_epoch_instruments(
         batch_imgs = torch.cat(inst_imgs, dim=0).to(device)      # (N_inst,3,H,W)
         batch_masks = torch.cat(inst_masks, dim=0).to(device)    # (N_inst,1,H,W)
         batch_labels = torch.tensor(inst_labels, dtype=torch.long, device=device)
+        #print(batch_labels)
 
         #print(batch_labels)
-        #batch_imgs,batch_masks, batch_labels = cutmix_with_mask(batch_imgs, batch_masks, batch_labels, alpha=1.0)
+        batch_imgs,batch_masks, batch_labels = cutmix_with_mask(batch_imgs, batch_masks, batch_labels, alpha=1.0)
         #cv2.imwrite(f"debug_samples/batch_img_{i}.png", ((batch_imgs[0].permute(1,2,0).cpu().numpy()*0.5 +0.5)*255).astype(np.uint8))
         #print(batch_labels)
         batch_feats = torch.cat(inst_feats, dim=0).to(device)  # (N_inst,C,H_feat,W_feat)
 
         # classificazione con masked pooling
-        logits = classifier(batch_feats, batch_masks)  # (N_inst,num_classes)
+        logits = classifier(batch_imgs, batch_masks)  # (N_inst,num_classes)
         loss = criterion(logits, batch_labels)
 
         optimizer.zero_grad(set_to_none=True)
@@ -551,7 +553,11 @@ def train_one_epoch_instruments(
 
         total_loss += loss.item()
         preds = torch.argmax(logits, dim=1)
-        total_correct += (preds == batch_labels).sum().item()
+        #print(preds)
+        #print(batch_labels)
+        targets = torch.argmax(batch_labels, dim=1)
+        #print(targets)
+        total_correct += ((preds == targets).sum().item())
         total_samples += batch_labels.size(0)
 
         avg_loss_batch = total_loss / max(1, total_samples)
@@ -995,8 +1001,10 @@ def validate_one_epoch_instruments(model, classifier, dataloader, device, run, e
 
         total_loss += loss.item()
         preds = torch.argmax(logits, dim=1)
+
         total_correct += (preds == batch_labels).sum().item()
         total_samples += batch_labels.size(0)
+
         del batch_imgs, batch_masks, batch_labels, logits, loss
         torch.cuda.empty_cache()
 

@@ -112,7 +112,7 @@ model.to(device=device)
 
 model.eval()
 classifier = InstrumentClassifier(in_channels=3, n_classes=9)
-classifier_checkpoint = "checkpoints/01_09/classifierPUrF6.pth"
+classifier_checkpoint = "checkpoints/01_09/classifieriXiAq.pth"
 state_dict = torch.load(classifier_checkpoint)
 classifier.load_state_dict(state_dict)
 classifier.to(device=device)
@@ -139,12 +139,10 @@ with torch.no_grad():
         # 1. Segmentazione binaria
         feats = model.image_encoder(images)
 
-        pred_logits = model.mask_decoder(feats)
+        pred_logits,dict = model.mask_decoder(feats)
         pred_logits = model.postprocess_masks(pred_logits,(1024,1024), (H, W))
-        if isinstance(pred_logits, dict) and "out" in pred_logits:
-            pred_masks = pred_logits["out"]
-        else:
-            pred_masks = pred_logits
+
+        pred_masks = pred_logits
         pred_masks = (pred_masks) > 0  # (B,1,H,W)
         inst_imgs, inst_masks, inst_labels = [], [], []
         for b in range(B):
