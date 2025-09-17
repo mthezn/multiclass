@@ -192,7 +192,7 @@ optimizer_cfg = {
     'weight_decay': 1e-4,
 }
 #classifier = InstrumentClassifier(in_channels=3, n_classes=datasetMiccai.getNumClasses()).to(device)
-classifier = InstrumentClassifier(in_channels=3, n_classes=datasetMiccai.getNumClasses()).to(device)
+classifier = InstrumentClassifier(in_channels=64, num_classes=datasetMiccai.getNumClasses()).to(device)
 classifier.train()
 optimizer = create_optimizer_v2(classifier,**optimizer_cfg)
 loss_scaler = NativeScaler()
@@ -252,7 +252,7 @@ print(weights)
 weights = torch.tensor(weights, dtype=torch.float32).to(device)
 weights = torch.cat((torch.tensor([0.0], dtype=torch.float32).to(device), weights))  # peso 0 per lo sfondo
 """
-criterion = F.cross_entropy#-1 quando ci sono maschere vuote
+criterion = torch.nn.CrossEntropyLoss(ignore_index = 0)#-1 quando ci sono maschere vuote
 
 #TRAINING
 patience = 20  # Number of epochs to wait for improvement

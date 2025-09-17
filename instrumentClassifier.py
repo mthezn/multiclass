@@ -35,7 +35,7 @@ class InstrumentClassifier(nn.Module):
     """
 
 
-
+"""
 #version con pooling per calssifcare usando tutta l'imagine ma concentrandosi sullo strumento
 class InstrumentClassifier(nn.Module):
     def __init__(self, in_channels=3, n_classes=8):
@@ -66,9 +66,9 @@ class InstrumentClassifier(nn.Module):
 
     def forward(self, x, mask):
 
-        """x:    (B,3,H,W) immagine
+        x:    (B,3,H,W) immagine
         mask: (B,1,H,W) maschera binaria per l'istanza
-        """
+        
         feat = self.features(x)  # (B,512,h,w)
         mask_resized = F.interpolate(mask, size=feat.shape[2:], mode="nearest")  # (B,1,h,w)
 
@@ -79,9 +79,9 @@ class InstrumentClassifier(nn.Module):
         out = self.fc(pooled)  # (B,n_classes)
         return out
 
-
-
 """
+
+
 
 class InstrumentClassifier(nn.Module):
     def __init__(self, in_channels=32, num_classes=7, dropout_p=0.3):
@@ -116,10 +116,10 @@ class InstrumentClassifier(nn.Module):
         self.fc = nn.Linear(256, num_classes)
 
     def forward(self, feats, masks):
-        
+        """
         feats: (B, C, H, W) feature map dal decoder (es. 32 canali)
         masks: (B, 1, H, W) maschere binarie per istanza
-      
+      """
         # Mascheratura: element-wise product
         masked_feats = feats * masks
 
@@ -139,4 +139,4 @@ class InstrumentClassifier(nn.Module):
         # Classificazione
         logits = self.fc(x)
         return logits
-        """
+
