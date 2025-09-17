@@ -477,7 +477,7 @@ def train_one_epoch_instruments(model, classifier, dataloader, optimizer, device
 def train_one_epoch_instruments(
     model, classifier, dataloader, optimizer, device, run, epoch, criterion, loss_scaler=None
 ):
-    model.eval()  
+    model.eval()
     classifier.train()
     total_loss = 0.0
     total_correct = 0

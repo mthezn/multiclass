@@ -287,7 +287,7 @@ class CholecDataset(Dataset):
 class InstrumentDataset(Dataset):
     def __init__(self, image_dirs, gt_dirs, transform=None, class_to_id=None, increase=False):
         """
-        image_dirs: lista di cartelle con i frame RGB (es: .../left_frames)
+        image_dirs: lista di cartelle con i frame RGB
         gt_dirs: lista di cartelle 'ground_truth' (una per dataset)
         """
         self.image_dirs = image_dirs
@@ -349,7 +349,7 @@ class InstrumentDataset(Dataset):
 
     def normalize_name(self, folder_name):
         """Rimuove Right_, Left_, e _labels dai nomi delle cartelle"""
-        name = re.sub(r'^(Right_|Left_)', '', folder_name)
+        name = re.sub(r'^(Right_|Left_|_Left|_Right)', '', folder_name)
         name = re.sub(r'_labels$', '', name)
         return name
 

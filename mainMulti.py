@@ -47,7 +47,7 @@ np.random.seed(seed)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 ## dataset
-batch_size = 1
+batch_size = 8
 train_transform = A.Compose([
     A.Resize(1024, 1024),
     A.HorizontalFlip(p=0.5),
@@ -71,33 +71,33 @@ validation_transform = A.Compose([
     ToTensorV2()
 ])
 #DIRECTORIES
-image_dirs_val = ["MICCAI/instrument_1_4_training/instrument_dataset_3/left_frames"]
-mask_dirs_val = ["MICCAI/instrument_1_4_training/instrument_dataset_3/ground_truth"
+image_dirs_val = ["/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_1_4_training/instrument_dataset_3/left_frames"]
+mask_dirs_val = ["/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_1_4_training/instrument_dataset_3/ground_truth"
                 ]
 
 image_dirs_train = [
     #"/home/mdezen/distillation/MICCAI/instrument_1_4_training/test",
-    "MICCAI/instrument_1_4_training/instrument_dataset_1/left_frames",
-    "MICCAI/instrument_1_4_training/instrument_dataset_2/left_frames",
-    "MICCAI/instrument_1_4_training/instrument_dataset_4/left_frames",
-    "MICCAI/instrument_5_8_training/instrument_dataset_5/left_frames",
-    "MICCAI/instrument_5_8_training/instrument_dataset_6/left_frames",
-    "MICCAI/instrument_5_8_training/instrument_dataset_7/left_frames",
-    "MICCAI/instrument_5_8_training/instrument_dataset_8/left_frames",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_1_4_training/instrument_dataset_1/left_frames",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_1_4_training/instrument_dataset_2/left_frames",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_1_4_training/instrument_dataset_4/left_frames",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_5_8_training/instrument_dataset_5/left_frames",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_5_8_training/instrument_dataset_6/left_frames",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_5_8_training/instrument_dataset_7/left_frames",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_5_8_training/instrument_dataset_8/left_frames",
 ]
 mask_dirs_train = [
-    "MICCAI/instrument_1_4_training/instrument_dataset_1/ground_truth",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_1_4_training/instrument_dataset_1/ground_truth",
 
-    "MICCAI/instrument_1_4_training/instrument_dataset_2/ground_truth",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_1_4_training/instrument_dataset_2/ground_truth",
 
-    "MICCAI/instrument_1_4_training/instrument_dataset_4/ground_truth",
-    "MICCAI/instrument_5_8_training/instrument_dataset_5/ground_truth",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_1_4_training/instrument_dataset_4/ground_truth",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_5_8_training/instrument_dataset_5/ground_truth",
 
-    "MICCAI/instrument_5_8_training/instrument_dataset_6/ground_truth",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_5_8_training/instrument_dataset_6/ground_truth",
 
-    "MICCAI/instrument_5_8_training/instrument_dataset_7/ground_truth",
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_5_8_training/instrument_dataset_7/ground_truth",
 
-    "MICCAI/instrument_5_8_training/instrument_dataset_8/ground_truth"
+    "/home/shared-nearmrs/mdezenDatasets/MICCAI/instrument_5_8_training/instrument_dataset_8/ground_truth"
 
 
 
@@ -136,7 +136,7 @@ for images, masks in dataloader:
 #CARICO IL MIO AUTOSAM
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-autosam_checkpoint = "/home/mdezen/distillation/checkpoints/28_07/autoSamFineUnetMUcH0.pth"  # Path to the autosam checkpoint
+autosam_checkpoint = "/home/shared-nearmrs/mdezenDatasets/autoSamFineUnetMUcH0.pth"  # Path to the autosam checkpoint
 
 
 
@@ -183,7 +183,7 @@ for param in model.mask_decoder.parameters():
 
 
 
-lr = 0.0001
+lr = 0.001
 
 
 optimizer_cfg = {
@@ -198,10 +198,7 @@ optimizer = create_optimizer_v2(classifier,**optimizer_cfg)
 loss_scaler = NativeScaler()
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode = 'min',factor = 0.1,patience = 3,threshold=0.000001)
 
-epochs = 50
-for i, param in enumerate(classifier.parameters()):
-    if param.grad is None:
-        print(f"Parametro {i} non ha gradiente!")
+epochs = 100
 
 
 
@@ -218,7 +215,7 @@ run = wandb.init(
         "architecture": "classifier",
         "dataset": "Miccai ",
         "epochs": epochs,
-        "criterion": "CrossEntropyWeighted",
+        "criterion": "CrossEntropy",
         "batch_size": batch_size,
         "optimizer": optimizer_cfg['opt'],
         "weight_decay": optimizer_cfg['weight_decay'],
@@ -255,7 +252,7 @@ weights = torch.cat((torch.tensor([0.0], dtype=torch.float32).to(device), weight
 criterion = torch.nn.CrossEntropyLoss(ignore_index = 0)#-1 quando ci sono maschere vuote
 
 #TRAINING
-patience = 20  # Number of epochs to wait for improvement
+patience = 50  # Number of epochs to wait for improvement
 best_val_loss = float('inf')
 epochs_no_improve = 0
 checkpoint_path = "checkpoints/01_09/" + name+".pth"
