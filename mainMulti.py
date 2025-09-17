@@ -47,7 +47,7 @@ np.random.seed(seed)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 ## dataset
-batch_size = 8
+batch_size = 2
 train_transform = A.Compose([
     A.Resize(1024, 1024),
     A.HorizontalFlip(p=0.5),
@@ -192,13 +192,13 @@ optimizer_cfg = {
     'weight_decay': 1e-4,
 }
 #classifier = InstrumentClassifier(in_channels=3, n_classes=datasetMiccai.getNumClasses()).to(device)
-classifier = InstrumentClassifier(in_channels=64, num_classes=datasetMiccai.getNumClasses()).to(device)
+classifier = InstrumentClassifier(in_channels=3,n_classes=datasetMiccai.getNumClasses()).to(device)
 classifier.train()
 optimizer = create_optimizer_v2(classifier,**optimizer_cfg)
 loss_scaler = NativeScaler()
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode = 'min',factor = 0.1,patience = 3,threshold=0.000001)
 
-epochs = 100
+epochs = 50
 
 
 
@@ -249,10 +249,10 @@ print(weights)
 weights = torch.tensor(weights, dtype=torch.float32).to(device)
 weights = torch.cat((torch.tensor([0.0], dtype=torch.float32).to(device), weights))  # peso 0 per lo sfondo
 """
-criterion = torch.nn.CrossEntropyLoss(ignore_index = 0)#-1 quando ci sono maschere vuote
+criterion = F.cross_entropy#-1 quando ci sono maschere vuote
 
 #TRAINING
-patience = 50  # Number of epochs to wait for improvement
+patience = 20  # Number of epochs to wait for improvement
 best_val_loss = float('inf')
 epochs_no_improve = 0
 checkpoint_path = "checkpoints/01_09/" + name+".pth"
