@@ -380,3 +380,71 @@ def get_instance_labels(gt_mask: np.ndarray, inst_masks: np.ndarray):
             labels.append(class_id)
 
     return labels
+
+
+def extract_instances_optimized(pred_masks, min_area=200):
+    """Estrazione istanze ottimizzata"""
+    instances = []
+
+    if pred_masks.dim() == 2:
+        pred_masks_np = pred_masks.cpu().numpy().astype(np.uint8)
+    else:
+        pred_masks_np = pred_masks.squeeze().cpu().numpy().astype(np.uint8)
+
+    # Connected components
+    num_labels, labels = cv2.connectedComponents(pred_masks_np)
+
+    for label_id in range(1, num_labels):
+        mask = (labels == label_id)
+        area = np.sum(mask)
+
+        if area < min_area:
+            continue
+
+        mask_tensor = torch.from_numpy(mask).bool()
+        instances.append(mask_tensor)
+
+    return instances
+
+
+def extract_roi_with_context(image, mask, context_factor=0.2, target_size=224):
+    """Estrae ROI con contesto aggiuntivo e resize per EfficientNet"""
+    # image: (3, H, W)
+    # mask: (H, W) boolean
+
+    # Trova bounding box della mask
+    coords = torch.where(mask)
+    if len(coords[0]) == 0:
+        # Mask vuota, ritorna immagine centrale
+        h, w = image.shape[-2:]
+        crop_size = min(h, w) // 2
+        start_h, start_w = h // 2 - crop_size // 2, w // 2 - crop_size // 2
+        roi = image[:, start_h:start_h + crop_size, start_w:start_w + crop_size]
+    else:
+        y_min, y_max = coords[0].min(), coords[0].max()
+        x_min, x_max = coords[1].min(), coords[1].max()
+
+        # Aggiungi contesto
+        h, w = image.shape[-2:]
+        box_h, box_w = y_max - y_min, x_max - x_min
+
+        pad_h = int(box_h * context_factor)
+        pad_w = int(box_w * context_factor)
+
+        y_min = max(0, y_min - pad_h)
+        y_max = min(h, y_max + pad_h)
+        x_min = max(0, x_min - pad_w)
+        x_max = min(w, x_max + pad_w)
+
+        # Estrai ROI
+        roi = image[:, y_min:y_max, x_min:x_max]
+
+    # Resize a dimensione fissa
+    roi = F.interpolate(
+        roi.unsqueeze(0),
+        size=(target_size, target_size),
+        mode='bilinear',
+        align_corners=False
+    ).squeeze(0)
+
+    return roi

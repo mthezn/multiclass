@@ -1,6 +1,6 @@
-.zip 
-.png
-.jpg 
-.xml 
-.pt
-.pth
+*.zip 
+*.png
+*.jpg 
+*.xml 
+*.pt
+*.pth

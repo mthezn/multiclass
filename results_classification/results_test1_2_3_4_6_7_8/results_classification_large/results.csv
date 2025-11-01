@@ -1,0 +1,8 @@
+Class,Images,Accuracy,Precision,Recall,F1-Score,Specificity
+Large_Needle_Driver,368,0.933,0.993,0.812,0.894,0.997
+Forceps,472,0.885,0.806,0.977,0.883,0.810
+Grasping_Retractor,0,0.996,0.000,0.000,0.000,0.996
+Maryland_Bipolar_Forceps,72,0.991,0.956,0.903,0.929,0.997
+Monopolar_Curved_Scissors,72,0.992,0.900,1.000,0.947,0.992
+Vessel_Sealer,73,0.948,0.781,0.342,0.476,0.993
+all,1057,0.957,0.739,0.672,0.688,0.964

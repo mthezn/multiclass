@@ -1,0 +1,14 @@
+{
+  "overall_metrics": {
+    "accuracy": 0.8674136321195145,
+    "total_samples": 1071,
+    "avg_time_ms": 52.26819946652367
+  },
+  "per_class_metrics": {
+    "Large_Needle_Driver": {
+      "name": "Large_Needle_Driver",
+      "accuracy": 0.9290382819794585,
+      "precision": 0.9933333333333333,
+      "recall": 0.8010752688172043,
+      "f1": 0.8869047619047619,
+      "support": 

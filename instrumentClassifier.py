@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+from torchvision import transforms as v2,models
 """
 class InstrumentClassifier(nn.Module):
     def __init__(self, in_channels=3, n_classes=8):
@@ -69,18 +71,47 @@ class InstrumentClassifier(nn.Module):
         x:    (B,3,H,W) immagine
         mask: (B,1,H,W) maschera binaria per l'istanza
         """
-        feat = self.features(x)  # (B,512,h,w)
-        mask_resized = F.interpolate(mask, size=feat.shape[2:], mode="nearest")  # (B,1,h,w)
+        mask_resized = F.interpolate(mask, size=x.shape[2:], mode="nearest")  # (B,1,h,w)
+        input = x * mask_resized
+        feat = self.features(input)  # (B,512,h,w)
 
-        # masked average pooling
-        feat_masked = feat * mask_resized
-        pooled = feat_masked.sum(dim=(2,3)) / (mask_resized.sum(dim=(2,3)) + 1e-6)  # (B,64)
+
+
+        pooled = feat.sum(dim=(2,3)) / (mask_resized.sum(dim=(2,3)) + 1e-6)  # (B,64)
         pooled = self.dropout(pooled)
         out = self.fc(pooled)  # (B,n_classes)
         return out
 
 
+class SurgicalToolClassifier(nn.Module):
+    """Classificatore EfficientNet per strumenti chirurgici"""
 
+    def __init__(self, num_classes=9, pretrained=True, dropout=0.3):
+        super(SurgicalToolClassifier, self).__init__()
+
+        # EfficientNet backbone
+        self.backbone = models.efficientnet_b0(pretrained=pretrained)
+
+
+        num_features = self.backbone.classifier[1].in_features
+        self.backbone.classifier = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(num_features, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(512, num_classes)
+        )
+
+        # Normalizzazione per ImageNet
+        self.normalize = v2.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )
+
+    def forward(self, x):
+
+        x = self.normalize(x)
+        return self.backbone(x)
 
 
 class InstrumentMaskClassifier(nn.Module):
