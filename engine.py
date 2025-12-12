@@ -238,6 +238,7 @@ def train_one_epoch_instruments_efficientnet(
                 roi = extract_roi_with_context(images[b], inst_mask,
                                                context_factor=0.5,
                                                target_size=roi_size)
+
                 """if label == 5:
                     # Crea multiple copie con augmentation diverse
                     n_copies = max(3, int(270 / 75))  # Calcola quante copie servono

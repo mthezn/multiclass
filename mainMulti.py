@@ -187,7 +187,7 @@ lr = 0.001
 
 
 #classifier = InstrumentClassifier(in_channels=3, n_classes=datasetMiccai.getNumClasses()).to(device)
-classifier = SurgicalToolClassifier(num_classes=8,pretrained=True,dropout=0.4).to(device)
+classifier = SurgicalToolClassifier(num_classes=6,pretrained=True,dropout=0.4).to(device)
 classifier.train()
 optimizer = torch.optim.AdamW(
     classifier.parameters(),

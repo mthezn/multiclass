@@ -114,7 +114,7 @@ class YOLOStyleReporter:
                 'precision': precision[idx],
                 'recall': recall[idx],
                 'f1': f1[idx],
-                'support': support[idx],
+                'support' : sum(1 for gt in gts if gt == class_id),
                 'tp': tp,
                 'fp': fp,
                 'fn': fn,
